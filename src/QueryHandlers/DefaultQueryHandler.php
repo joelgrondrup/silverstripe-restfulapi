@@ -169,7 +169,7 @@ class DefaultQueryHandler implements QueryHandler
         //map HTTP word to module method
         switch ($request->httpMethod()) {
             case 'GET':
-                return $this->findModel($model, $id, $queryParams, $request);
+                return $this->findModel($model, $queryParams, $request, $id);
                 break;
             case 'POST':
                 return $this->createModel($model, $request);
@@ -248,7 +248,7 @@ class DefaultQueryHandler implements QueryHandler
      * @param  HTTPRequest         $request        The original HTTP request
      * @return DataObject|DataList                    Result of the search (note: DataList can be empty)
      */
-    public function findModel($model, $id = false, $queryParams, HTTPRequest $request)
+    public function findModel($model, $queryParams, HTTPRequest $request, $id = false)
     {
         if ($id) {
             $return = DataObject::get_by_id($model, $id);
