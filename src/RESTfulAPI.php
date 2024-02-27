@@ -515,7 +515,8 @@ class RESTfulAPI extends Controller
     private static function api_access_config_check($className, $httpMethod = 'GET')
     {
         $access = false;
-        $api_access = singleton($className)->stat('api_access');
+        // $api_access = singleton($className)->stat('api_access');
+        $api_access = singleton($className)->config()->get('api_access');
 
         if (is_string($api_access)) {
             $api_access = explode(',', strtoupper($api_access));
