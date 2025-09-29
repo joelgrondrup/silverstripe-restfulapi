@@ -1,5 +1,6 @@
 {
-    "name": "colymba/silverstripe-restfulapi",
+    "name": "joelgrondrup/silverstripe-restfulapi",
+    "version": "v3.0.2",
     "type": "silverstripe-vendormodule",
     "description": "SilverStripe RESTful API with a default JSON serializer.",
     "homepage": "https://github.com/colymba/silverstripe-restfulapi",
