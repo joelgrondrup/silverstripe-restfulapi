@@ -166,7 +166,10 @@ class TokenAuthenticator implements Authenticator
                     $member->{$tokenDBColumn} = $tokenData['token'];
                     $member->{$expireDBColumn} = $tokenData['expire'];
                     $member->write();
-                    $member->login();
+                    
+                    $identityStore = Injector::inst()->get(IdentityStore::class);
+                    $identityStore->logIn($member);
+
                 }
             }
 
