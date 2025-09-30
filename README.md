@@ -1,5 +1,3 @@
-:warning: I haven't been able to give as much love as I would like to these repos as they deserve. If you have time and are interested to help maintain them, give me a shout. :rotating_light:
-
 # SilverStripe RESTful API
 
 [![Build Status](https://travis-ci.org/colymba/silverstripe-restfulapi.png?branch=master)](https://travis-ci.org/colymba/silverstripe-restfulapi)
@@ -34,7 +32,7 @@ The allowed `/auth/$Action` must be defined on the used `Authenticator` class vi
 
 
 ## Requirements
-* [SilverStripe Framework 4+](https://github.com/silverstripe/silverstripe-framework)
+* [SilverStripe Framework 5+](https://github.com/silverstripe/silverstripe-framework)
 
 
 ## Quick features highlight
