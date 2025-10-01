@@ -142,6 +142,7 @@ class TokenAuthenticator implements Authenticator
      */
     public function login(HTTPRequest $request)
     {
+
         $response = array();
 
         if ($this->tokenConfig['owner'] === Member::class) {
@@ -158,6 +159,7 @@ class TokenAuthenticator implements Authenticator
                     $request
                 );
                 if ($member) {
+                
                     $tokenData = $this->generateToken();
 
                     $tokenDBColumn = $this->tokenConfig['DBColumn'];
@@ -300,33 +302,29 @@ class TokenAuthenticator implements Authenticator
     }
 
     /**
-     * Generates an encrypted random token
-     * and an expiry date
+     * Generates a random URL-safe token and an expiry date
      *
-     * @param  boolean $expired Set to true to generate an outdated token
-     * @return array            token data array('token' => HASH, 'expire' => EXPIRY_DATE)
+     * @param  bool $expired Set to true to generate an outdated token
+     * @return array         token data array('token' => TOKEN, 'expire' => EXPIRY_DATE)
      */
     private function generateToken($expired = false)
     {
         $life = $this->tokenConfig['life'];
 
-        if (!$expired) {
-            $expire = time() + $life;
-        } else {
-            $expire = time() - ($life * 2);
-        }
+        // Calculate expiry
+        $expire = $expired ? time() - ($life * 2) : time() + $life;
 
-        $generator = new RandomGenerator();
-        $tokenString = $generator->randomToken();
+        // Generate a secure random token
+        $length = 32; // number of random bytes
+        $randomBytes = random_bytes($length);
 
-        $e = PasswordEncryptor::create_for_algorithm('blowfish'); //blowfish isn't URL safe and maybe too long?
-        $salt = $e->salt($tokenString);
-        $token = $e->encrypt($tokenString, $salt);
+        // Convert to URL-safe Base64 string
+        $token = rtrim(strtr(base64_encode($randomBytes), '+/', '-_'), '=');
 
-        return array(
-            'token' => substr($token, 7),
+        return [
+            'token'  => $token,
             'expire' => $expire,
-        );
+        ];
     }
 
     /**
