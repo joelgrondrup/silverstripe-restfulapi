@@ -1,4 +1,4 @@
-# SilverStripe RESTful API
+# SilverStripe RESTful API – SilverStripe 5 version
 
 [![Build Status](https://travis-ci.org/colymba/silverstripe-restfulapi.png?branch=master)](https://travis-ci.org/colymba/silverstripe-restfulapi)
 
