@@ -6,17 +6,13 @@ use Colymba\RESTfulAPI\RESTfulAPIError;
 use Colymba\RESTfulAPI\Authenticators\Authenticator;
 use Colymba\RESTfulAPI\Extensions\TokenAuthExtension;
 use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Control\Session;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\IdentityStore;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\MemberAuthenticator\LostPasswordHandler;
 use SilverStripe\Security\MemberAuthenticator\MemberAuthenticator;
-use SilverStripe\Security\PasswordEncryptor;
-use SilverStripe\Security\RandomGenerator;
 use SilverStripe\Security\Security;
 
 /**
@@ -231,14 +227,14 @@ class TokenAuthenticator implements Authenticator
      */
     public function lostPassword(HTTPRequest $request)
     {
-        $email = Convert::raw2sql($request->requestVar('email'));
-        $member = DataObject::get_one(Member::class, "\"Email\" = '{$email}'");
+        $email = $request->requestVar('email');
+        $member = Member::get()->filter(['Email' => $email])->first();
 
         if ($member) {
             $token = $member->generateAutologinTokenAndStoreHash();
 
             $link = Security::lost_password_url();
-            $lostPasswordHandler = new LostPasswordHandler($link);
+            $lostPasswordHandler = LostPasswordHandler::create($link);
 
             $lostPasswordHandler->sendEmail($member, $token);
         }
@@ -256,7 +252,7 @@ class TokenAuthenticator implements Authenticator
     {
         if ($id) {
             $ownerClass = $this->tokenConfig['owner'];
-            $owner = DataObject::get_by_id($ownerClass, $id);
+            $owner = DataObject::get($ownerClass)->setUseCache(true)->byID($id);
 
             if ($owner) {
                 $tokenDBColumn = $this->tokenConfig['DBColumn'];
@@ -280,7 +276,7 @@ class TokenAuthenticator implements Authenticator
     {
         if ($id) {
             $ownerClass = $this->tokenConfig['owner'];
-            $owner = DataObject::get_by_id($ownerClass, $id);
+            $owner = DataObject::get($ownerClass)->setUseCache(true)->byID($id);
 
             if ($owner) {
                 //generate token
@@ -345,13 +341,8 @@ class TokenAuthenticator implements Authenticator
         }
 
         if ($token) {
-            $SQLToken = Convert::raw2sql($token);
 
-            $owner = DataObject::get_one(
-                $this->tokenConfig['owner'],
-                "\"" . $this->tokenConfig['DBColumn'] . "\"='" . $SQLToken . "'",
-                false
-            );
+            $owner = DataObject::get($this->tokenConfig['owner'])->filter([$this->tokenConfig['DBColumn'] => $token])->first();
 
             if (!$owner) {
                 $owner = null;
@@ -401,14 +392,9 @@ class TokenAuthenticator implements Authenticator
     private function validateAPIToken($token, $request)
     {
         //get owner with that token
-        $SQL_token = Convert::raw2sql($token);
         $tokenColumn = $this->tokenConfig['DBColumn'];
 
-        $tokenOwner = DataObject::get_one(
-            $this->tokenConfig['owner'],
-            "\"" . $this->tokenConfig['DBColumn'] . "\"='" . $SQL_token . "'",
-            false
-        );
+        $tokenOwner = DataObject::get($this->tokenConfig['owner'])->filter([$tokenColumn => $token])->first();
 
         if ($tokenOwner) {
             //check token expiry

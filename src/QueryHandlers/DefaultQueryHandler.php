@@ -2,6 +2,7 @@
 
 namespace Colymba\RESTfulAPI\QueryHandlers;
 
+use SilverStripe\Core\Validation\ValidationException;
 use Colymba\RESTfulAPI\QueryHandlers\QueryHandler;
 use Colymba\RESTfulAPI\RESTfulAPI;
 use Colymba\RESTfulAPI\RESTfulAPIError;
@@ -10,7 +11,6 @@ use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DataList;
-use SilverStripe\ORM\ValidationException;
 
 /**
  * Default RESTfulAPI Query handler
@@ -251,7 +251,7 @@ class DefaultQueryHandler implements QueryHandler
     public function findModel($model, $queryParams, HTTPRequest $request, $id = false)
     {
         if ($id) {
-            $return = DataObject::get_by_id($model, $id);
+            $return = DataObject::get($model)->setUseCache(true)->byID($id);
 
             if (!$return) {
                 return new RESTfulAPIError(404,
@@ -358,7 +358,7 @@ class DefaultQueryHandler implements QueryHandler
     public function updateModel($model, $id, $request)
     {
         if (is_string($model)) {
-            $model = DataObject::get_by_id($model, $id);
+            $model = DataObject::get($model)->setUseCache(true)->byID($id);
         }
 
         if (!$model) {
@@ -466,7 +466,7 @@ class DefaultQueryHandler implements QueryHandler
                         "Error writting data."
                     );
                 } else {
-                    return DataObject::get_by_id($model->ClassName, $id);
+                    return DataObject::get($model->ClassName)->setUseCache(true)->byID($id);
                 }
             } else {
                 return $model;
@@ -491,7 +491,7 @@ class DefaultQueryHandler implements QueryHandler
     public function deleteModel($model, $id, HTTPRequest $request)
     {
         if ($id) {
-            $object = DataObject::get_by_id($model, $id);
+            $object = DataObject::get($model)->setUseCache(true)->byID($id);
 
             if ($object) {
                 if (!RESTfulAPI::api_access_control($object, $request->httpMethod())) {
